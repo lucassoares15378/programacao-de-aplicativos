@@ -1,5 +1,8 @@
 cidades = ["São Paulo", "Rio de Janeiro", "Curitiba", "Belo Horizonte"]
 tarefa = input("Digite uma cidade: ")
 
-posicao = cidades.index(tarefa)
-print(f"A cidade {nome} está na posição {posicao}.")
+if tarefa in cidades:
+    posicao = cidades.index(tarefa)
+    print(f"A cidade {tarefa} está na posição {posicao}.")
+else:
+    print(f"A {tarefa} não foi encontrada")
