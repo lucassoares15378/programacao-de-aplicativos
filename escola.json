@@ -1,0 +1,18 @@
+[
+    {
+        "id": 1,
+        "nome": "Lucas",
+        "telefone": "44 998021193",
+        "turma": "2 ano",
+        "idade": 16,
+        "cpf": "11643543962"
+    },
+    {
+        "id": 2,
+        "nome": "Gustavo",
+        "telefone": "44 982910283",
+        "turma": "2 ano",
+        "idade": 16,
+        "cpf": "27537282927"
+    }
+]
