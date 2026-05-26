@@ -65,6 +65,8 @@ def editar():
     else:
         print("Aluno não encontrado!")
 
+def excluir():
+
 def menu():
     if not os.path.exists(DADOS_BANCO):
         with open(DADOS_BANCO, 'w', encoding='utf-8') as dados:
