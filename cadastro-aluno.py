@@ -29,10 +29,15 @@ cursor.execute(comando_inserir)
 
 print("Aluno cadastrado com sucesso!")
 
-cursor.execute("SELECT id, nome, telefone, turma, idade, cpf FROM alunos")
+cursor.execute("SELECT * FROM alunos")
 print("Lista: ")
 
-for aluno in cursor:
-    print(f"ID: {aluno[0]} | Nome: {aluno[1]} | Telefone: {aluno[2]} | Turma: {aluno[3]} | Idade: {aluno[4]} | CPF: {aluno[5]}")
+todos_alunos = cursor.fetchall()
+if not todos_alunos:
+    print("Nenhum aluno cadastrado!")
+else:
+    for aluno in todos_alunos:
+        print(f"ID:{aluno[0]} | Nome: {aluno[1]} | Telefone: {aluno[2]} | Turma: {aluno[3]} | Idade: {aluno[4]} | CPF: {aluno[5]}")
+
 conexao.commit()
 conexao.close()
