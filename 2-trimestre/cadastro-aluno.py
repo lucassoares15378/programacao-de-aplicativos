@@ -10,13 +10,22 @@ def conectar():
         telefone TEXT,
         turma TEXT,
         idade INTEGER,
-        cpf TEXT UNIQUE NOT NULL
+        cpf TEXT UNIQUE NOT NULL,
+        professor_id INTEGER,
+        FOREIGN KEY (professor_id) REFERENCES professores(id) ON DELETE SET NULL
     )
     ''')
     return conexao, cursor
 
 def cadastrar_aluno(cursor, conexao):
     print("--- CADASTRAR ALUNO ---")
+
+    id_prof = int(input("Qual o ID do seu professor: "))
+    cursor.execute('SELEC id FROM professores WHERE id = {id_prof}')
+    if not cursor.fetchone:
+        print("ERRO: ID do professor não existe")
+        return
+
     nome = input("Nome: ")
     telefone = input("Telefone: ")
     turma = input("Turma: ")
@@ -49,7 +58,7 @@ def editar_aluno(cursor, conexao):
     if not listar_alunos(cursor):
         return
 
-    id_aluno = int(input("\nDigite o ID do aluno que deseja editar: "))
+    id_aluno = int(input("Digite o ID do aluno que deseja editar: "))
     
     cursor.execute("SELECT * FROM alunos WHERE id = ?", (id_aluno,))
     if not cursor.fetchone():
@@ -80,7 +89,7 @@ def excluir_aluno(cursor, conexao):
     if not listar_alunos(cursor):
         return
 
-    id_aluno = int(input("\nDigite o ID do aluno que deseja excluir: "))
+    id_aluno = int(input("Digite o ID do aluno que deseja excluir: "))
     
     cursor.execute("SELECT * FROM alunos WHERE id = ?", (id_aluno,))
     if not cursor.fetchone():
