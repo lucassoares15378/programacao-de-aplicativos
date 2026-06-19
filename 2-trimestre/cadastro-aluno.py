@@ -3,6 +3,16 @@ import sqlite3
 def conectar():
     conexao = sqlite3.connect('escola_demonstracao.db')
     cursor = conexao.cursor()
+    
+    cursor.execute('PRAGMA foreign_keys = ON;')
+    
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS professores (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL
+    )
+    ''')
+    
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS alunos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,24 +31,31 @@ def cadastrar_aluno(cursor, conexao):
     print("--- CADASTRAR ALUNO ---")
 
     id_prof = int(input("Qual o ID do seu professor: "))
-    cursor.execute('SELEC id FROM professores WHERE id = {id_prof}')
-    if not cursor.fetchone:
-        print("ERRO: ID do professor não existe")
+    
+    cursor.execute(f"SELECT id FROM professores WHERE id = {id_prof}")
+    if not cursor.fetchone():
+        print("ERRO: ID do professor não existe!")
+        return
+
+    cpf = input("CPF: ")
+    
+    cursor.execute(f"SELECT id FROM alunos WHERE cpf = '{cpf}'")
+    if cursor.fetchone():
+        print("Erro: Este CPF já está cadastrado!")
         return
 
     nome = input("Nome: ")
     telefone = input("Telefone: ")
     turma = input("Turma: ")
     idade = int(input("Idade: "))
-    cpf = input("CPF: ")
 
-    comando = "INSERT INTO alunos (nome, telefone, turma, idade, cpf) VALUES (?, ?, ?, ?, ?)"
-    try:
-        cursor.execute(comando, (nome, telefone, turma, idade, cpf))
-        conexao.commit()
-        print("Aluno cadastrado com sucesso!")
-    except sqlite3.IntegrityError:
-        print("Erro: Este CPF já está cadastrado!")
+    comando = f'''
+    INSERT INTO alunos (nome, telefone, turma, idade, cpf, professor_id) 
+    VALUES ('{nome}', '{telefone}', '{turma}', {idade}, '{cpf}', {id_prof})
+    '''
+    cursor.execute(comando)
+    conexao.commit()
+    print("Aluno cadastrado com sucesso!")
 
 def listar_alunos(cursor):
     print("--- LISTA DE ALUNOS ---")
@@ -50,7 +67,7 @@ def listar_alunos(cursor):
         return False
     
     for aluno in todos_alunos:
-        print(f"ID: {aluno[0]} | Nome: {aluno[1]} | Telefone: {aluno[2]} | Turma: {aluno[3]} | Idade: {aluno[4]} | CPF: {aluno[5]}")
+        print(f"ID: {aluno[0]} | Nome: {aluno[1]} | Telefone: {aluno[2]} | Turma: {aluno[3]} | Idade: {aluno[4]} | CPF: {aluno[5]} | ID Prof: {aluno[6]}")
     return True
 
 def editar_aluno(cursor, conexao):
@@ -60,29 +77,45 @@ def editar_aluno(cursor, conexao):
 
     id_aluno = int(input("Digite o ID do aluno que deseja editar: "))
     
-    cursor.execute("SELECT * FROM alunos WHERE id = ?", (id_aluno,))
+    cursor.execute(f"SELECT * FROM alunos WHERE id = {id_aluno}")
     if not cursor.fetchone():
         print("Erro: ID não encontrado!")
         return
 
-    print("Digite os novos dados:")
+    novo_id_prof = int(input("Novo ID do Professor: "))
+    
+    cursor.execute(f"SELECT id FROM professores WHERE id = {novo_id_prof}")
+    if not cursor.fetchone():
+        print("Erro: Novo ID do professor não existe!")
+        return
+
+    novo_cpf = input("Novo CPF: ")
+    
+    # Validação para não roubar CPF de outro aluno
+    cursor.execute(f"SELECT id FROM alunos WHERE cpf = '{novo_cpf}' AND id != {id_aluno}")
+    if cursor.fetchone():
+        print("Erro: Este novo CPF já pertence a outro aluno!")
+        return
+
     novo_nome = input("Novo Nome: ")
     novo_telefone = input("Novo Telefone: ")
     nova_turma = input("Nova Turma: ")
     nova_idade = int(input("Nova Idade: "))
-    novo_cpf = input("Novo CPF: ")
 
-    comando = '''
+    # Comando UPDATE usando f-string
+    comando = f'''
     UPDATE alunos 
-    SET nome = ?, telefone = ?, turma = ?, idade = ?, cpf = ? 
-    WHERE id = ?
+    SET nome = '{novo_nome}', 
+        telefone = '{novo_telefone}', 
+        turma = '{nova_turma}', 
+        idade = {nova_idade}, 
+        cpf = '{novo_cpf}', 
+        professor_id = {novo_id_prof} 
+    WHERE id = {id_aluno}
     '''
-    try:
-        cursor.execute(comando, (novo_nome, novo_telefone, nova_turma, nova_idade, novo_cpf, id_aluno))
-        conexao.commit()
-        print("Aluno atualizado com sucesso!")
-    except sqlite3.IntegrityError:
-        print("Erro: Este novo CPF já pertence a outro aluno!")
+    cursor.execute(comando)
+    conexao.commit()
+    print("Aluno atualizado com sucesso!")
 
 def excluir_aluno(cursor, conexao):
     print("\n--- EXCLUIR ALUNO ---")
@@ -91,13 +124,13 @@ def excluir_aluno(cursor, conexao):
 
     id_aluno = int(input("Digite o ID do aluno que deseja excluir: "))
     
-    cursor.execute("SELECT * FROM alunos WHERE id = ?", (id_aluno,))
+    cursor.execute(f"SELECT * FROM alunos WHERE id = {id_aluno}")
     if not cursor.fetchone():
         print("Erro: ID não encontrado!")
         return
 
-    comando = "DELETE FROM alunos WHERE id = ?"
-    cursor.execute(comando, (id_aluno,))
+    comando = f"DELETE FROM alunos WHERE id = {id_aluno}"
+    cursor.execute(comando)
     conexao.commit()
     print("Aluno removido com sucesso!")
 
