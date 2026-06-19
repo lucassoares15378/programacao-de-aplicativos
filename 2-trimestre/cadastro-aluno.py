@@ -1,9 +1,9 @@
 import sqlite3
 
 def conectar():
-    conexao = sqlite3.connect('escola_demonstracao.db')
+    conexao = sqlite3.connect('escola.demonstracao.db')
     cursor = conexao.cursor()
-    
+
     cursor.execute('PRAGMA foreign_keys = ON;')
     
     cursor.execute('''
@@ -22,7 +22,7 @@ def conectar():
         idade INTEGER,
         cpf TEXT UNIQUE NOT NULL,
         professor_id INTEGER,
-        FOREIGN KEY (professor_id) REFERENCES professores(id) ON DELETE SET NULL
+        FOREIGN KEY (professor_id) REFERENCES professores(id) 
     )
     ''')
     return conexao, cursor
@@ -48,10 +48,13 @@ def cadastrar_aluno(cursor, conexao):
     telefone = input("Telefone: ")
     turma = input("Turma: ")
     idade = int(input("Idade: "))
+    endereço = input("Endereço: ")
+    cidade = input("Cidade: ")
+    estado = input("Estado: ")
 
     comando = f'''
     INSERT INTO alunos (nome, telefone, turma, idade, cpf, professor_id) 
-    VALUES ('{nome}', '{telefone}', '{turma}', {idade}, '{cpf}', {id_prof})
+    VALUES ('{nome}', '{telefone}', '{turma}', {idade}, '{cpf}', '{id_prof}', '{endereço}', '{cidade}', '{estado}')
     '''
     cursor.execute(comando)
     conexao.commit()
@@ -67,7 +70,7 @@ def listar_alunos(cursor):
         return False
     
     for aluno in todos_alunos:
-        print(f"ID: {aluno[0]} | Nome: {aluno[1]} | Telefone: {aluno[2]} | Turma: {aluno[3]} | Idade: {aluno[4]} | CPF: {aluno[5]} | ID Prof: {aluno[6]}")
+        print(f"ID: {aluno[0]} | Nome: {aluno[1]} | Telefone: {aluno[2]} | Turma: {aluno[3]} | Idade: {aluno[4]} | CPF: {aluno[5]} | ID Prof: {aluno[6]} | Endereço: {aluno[7]} | Cidade: {aluno[8]}, | Estado: {aluno[9]}")
     return True
 
 def editar_aluno(cursor, conexao):
@@ -91,7 +94,6 @@ def editar_aluno(cursor, conexao):
 
     novo_cpf = input("Novo CPF: ")
     
-    # Validação para não roubar CPF de outro aluno
     cursor.execute(f"SELECT id FROM alunos WHERE cpf = '{novo_cpf}' AND id != {id_aluno}")
     if cursor.fetchone():
         print("Erro: Este novo CPF já pertence a outro aluno!")
@@ -101,16 +103,21 @@ def editar_aluno(cursor, conexao):
     novo_telefone = input("Novo Telefone: ")
     nova_turma = input("Nova Turma: ")
     nova_idade = int(input("Nova Idade: "))
+    novo_endereço = input("Novo endereço: ")
+    nova_cidade = input("Nova cidade: ")
+    novo_estado = input("Novo estado: ")
 
-    # Comando UPDATE usando f-string
     comando = f'''
     UPDATE alunos 
     SET nome = '{novo_nome}', 
         telefone = '{novo_telefone}', 
         turma = '{nova_turma}', 
-        idade = {nova_idade}, 
+        idade = '{nova_idade}', 
         cpf = '{novo_cpf}', 
-        professor_id = {novo_id_prof} 
+        professor_id = '{novo_id_prof}',
+        endereço = '{novo_endereço}',
+        cidade = '{nova_cidade}',
+        estado = '{novo_estado}',
     WHERE id = {id_aluno}
     '''
     cursor.execute(comando)
@@ -137,7 +144,7 @@ def excluir_aluno(cursor, conexao):
 conexao, cursor = conectar()
 
 while True:
-    print("\n===== MENU ESCOLA =====")
+    print("===== MENU ESCOLA =====")
     print("[1] Cadastrar Aluno")
     print("[2] Listar Alunos")
     print("[3] Atualizar Aluno")

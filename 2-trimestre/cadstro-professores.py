@@ -1,111 +1,100 @@
 import sqlite3
+conexao = sqlite3.connect('escola.demonstracao.db')
+cursor = conexao.cursor()
 
-def conectar():
-    conexao = sqlite3.connect('escola_demonstracao.db')
-    cursor = conexao.cursor()
+
+def cadastrar_professor():
+    nome_completo = input("Digite o nome completo: ")
+    telefone_professor = input("Digite o telefone: ")
+    materia = input("Digite a Materia: ")
+    idade_professor = int(input("Digite a idade: "))
+    cpf = input("Digite o cpf: ")
+    salario = (input("Digite seu salario: "))
+    escola = (input("Digite o nome da escola: "))
+    endereco = input("Digite o endereço: ")
+
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS professores(
-        id_professor INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome_professor TEXT NOT NULL,
-        telefone_professor TEXT,
-        materia_professor TEXT,
-        idade_professor INTEGER,
-        cpf_professor TEXT UNIQUE NOT NULL,
-        salario_professor TEXT NOT NULL,
-        nome_da_escola TEXT
+    CREATE TABLE IF NOT EXISTS alunos(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        telefone TEXT, 
+        turma TEXT, 
+        idade INTEGER,
+        cpf TEXT UNIQUE NOT NULL,
+        salario TEXT NOT NULL,
+        escola TEXT,
+        endereco
     )
     ''')
-    conexao.commit() 
-    return conexao, cursor
+    comando_inserir = f'''
+        INSERT INTO alunos(nome, telefone, turma, idade, cpf, salario, escola, endereco)
+        VALUES('{nome_completo}', '{telefone_professor}', '{materia}', '{idade_professor}', '{cpf}', '{salario}', '{escola}', '{endereco}')'''
 
-def cadastrar_professor(cursor, conexao):
-    print("---CADASTRAR PROFESSOR---")
-    nome_professor = input("Nome: ")
-    telefone_professor = input("Telefone: ")
-    materia_professor = input("Matéria: ")
-    idade_professor = int(input("Idade: "))
-    cpf_professor = input("CPF: ")
-    salario_professor = input("Salário: R$")
-    nome_da_escola = input("Escola: ")
-
-    
-    cursor.execute(f'''
-    INSERT INTO professores (nome_professor, telefone_professor, materia_professor, idade_professor, cpf_professor, salario_professor, nome_da_escola)
-    VALUES ('{nome_professor}', '{telefone_professor}', '{materia_professor}', {idade_professor}, '{cpf_professor}', '{salario_professor}', '{nome_da_escola}')
-    ''')
+    cursor.execute(comando_inserir)
     conexao.commit()
-    print("Professor cadastrado com sucesso!")
 
-def listar_professores(cursor, conexao=None): 
-    print("---LISTA DE PROFESSORES---")
-    cursor.execute("SELECT * FROM professores")
-    professores = cursor.fetchall() 
 
-    if not professores:
-        print("Nenhum professor cadastrado...")
-        return
-
-    for prof in professores:
-        print(f"ID: {prof[0]} | Nome: {prof[1]} | Tel: {prof[2]} | Matéria: {prof[3]} | Idade: {prof[4]} | CPF: {prof[5]} | Salário: R${prof[6]} | Escola: {prof[7]}")
-
-def editar_professor(cursor, conexao):
-    print("--- ALTERAR PROFESSOR ---")
-    listar_professores(cursor) 
-    id_prof = input("Digite o ID do professor que deseja alterar: ")
-
-    nome_professor = input("Novo Nome Completo: ")
-    telefone_professor = input("Novo Telefone: ")
-    materia_professor = input("Nova Matéria: ")
-    idade_professor = int(input("Nova Idade: "))
-    cpf_professor = input("Novo CPF: ")
-    salario_professor = input("Novo Salário: R$")
-    nome_da_escola = input("Nova Escola: ")
-
-    cursor.execute(f'''
-    UPDATE professores SET 
-        nome_professor = '{nome_professor}', 
-        telefone_professor = '{telefone_professor}', 
-        materia_professor = '{materia_professor}', 
-        idade_professor = {idade_professor}, 
-        cpf_professor = '{cpf_professor}', 
-        salario_professor = '{salario_professor}', 
-        nome_da_escola = '{nome_da_escola}'
-    WHERE id_professor = {id_prof}
-    ''')
+def listar():
     conexao.commit()
-    print("Dados alterados com sucesso!")
+    cursor.execute("SELECT * FROM alunos")
+    for linha in cursor.fetchall():
+        print(linha)
+    print("\n")
 
-def excluir_professor(cursor, conexao):
-    print("--- EXCLUIR PROFESSOR ---")
-    listar_professores(cursor) 
-    id_prof = input("\nDigite o ID do professor que deseja excluir: ")
 
-    cursor.execute(f"DELETE FROM professores WHERE id_professor = {id_prof}")
+
+def atualizar():
+    id_professor = input("Digite o id do professor: ")
+    novo_nome = input("Digite o novo nome: ")
+    novo_telefone = input("Digite o novo telefone: ")
+    nova_materia = input("Digite a nova materia: ")
+    nova_idade = input("Digite a nova idade: ")
+    novo_cpf = input("Digite o novo CPF: ")
+    novo_salario = (input("Digite seu salario: "))
+    nova_escola = (input("Digite o nome da escola: "))
+    novo_endereco = input("Digite o novo endereço: ") 
+
+    cursor.execute('''
+                   UPDATE alunos
+                   SET nome = ?, telefone = ?, turma = ?, idade = ?, cpf = ?, salario = ?, escola = ?, endereco = ?, WHERE id = ?''', (novo_nome, novo_telefone, nova_materia, nova_idade, novo_cpf, novo_salario, nova_escola, novo_endereco. id_professor))
     conexao.commit()
-    print("Professor excluído com sucesso!")
+    print("Dados atualizados com sucesso! ")
 
-def Menu():
-    conexao, cursor = conectar()
-    
+
+
+def excluir():
+    id_professor = input("Digite o ID do professor que deseja excluir: ")
+    cursor.execute(
+        "DELETE FROM alunos WHERE id = ?", (id_professor,)
+    )
+
+    conexao.commit()
+    if cursor.rowcount > 0 :
+        print("Professor excluido com sucesso.")
+    else:
+        print("Nenhum professor encontrado com esse ID. ")
+
+
+def menu():
     while True:
-        print("---MENU ESCOLA---")
-        print("1. Cadastrar")
-        print("2. Listar")
-        print("3. Alterar")
-        print("4. Excluir")
+        print("1. Cadastrar Professor")
+        print("2. Listar Professores")
+        print("3. Alterar Professor")
+        print("4. Excluir Professor")
         print("5. Sair")
         
         opcao = input("Escolha uma opção: ")
         
         if opcao == '1':
-            cadastrar_professor(cursor, conexao)
+            cadastrar_professor()
         elif opcao == '2':
-            listar_professores(cursor, conexao)
+            listar()
         elif opcao == '3':
-            editar_professor(cursor, conexao)
+            atualizar()
         elif opcao == '4':
-            excluir_professor(cursor, conexao)
+            excluir()
         elif opcao == '5':
+            print("Saindo")
             break
         else:
             print("Opção inválida! Tente novamente.")
@@ -113,4 +102,5 @@ def Menu():
     conexao.close()
 
 if __name__ == "__main__":
-    Menu()
+    menu()
+
