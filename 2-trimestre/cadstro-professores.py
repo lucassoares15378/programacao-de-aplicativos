@@ -14,7 +14,7 @@ def cadastrar_professor():
     endereco = input("Digite o endereço: ")
 
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS alunos(
+    CREATE TABLE IF NOT EXISTS professores(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
         telefone TEXT, 
@@ -27,7 +27,7 @@ def cadastrar_professor():
     )
     ''')
     comando_inserir = f'''
-        INSERT INTO alunos(nome, telefone, turma, idade, cpf, salario, escola, endereco)
+        INSERT INTO professores(nome, telefone, turma, idade, cpf, salario, escola, endereco)
         VALUES('{nome_completo}', '{telefone_professor}', '{materia}', '{idade_professor}', '{cpf}', '{salario}', '{escola}', '{endereco}')'''
 
     cursor.execute(comando_inserir)
@@ -36,7 +36,7 @@ def cadastrar_professor():
 
 def listar():
     conexao.commit()
-    cursor.execute("SELECT * FROM alunos")
+    cursor.execute("SELECT * FROM professores")
     for linha in cursor.fetchall():
         print(linha)
     print("\n")
@@ -55,7 +55,7 @@ def atualizar():
     novo_endereco = input("Digite o novo endereço: ") 
 
     cursor.execute('''
-                   UPDATE alunos
+                   UPDATE professores
                    SET nome = ?, telefone = ?, turma = ?, idade = ?, cpf = ?, salario = ?, escola = ?, endereco = ?, WHERE id = ?''', (novo_nome, novo_telefone, nova_materia, nova_idade, novo_cpf, novo_salario, nova_escola, novo_endereco. id_professor))
     conexao.commit()
     print("Dados atualizados com sucesso! ")
@@ -65,7 +65,7 @@ def atualizar():
 def excluir():
     id_professor = input("Digite o ID do professor que deseja excluir: ")
     cursor.execute(
-        "DELETE FROM alunos WHERE id = ?", (id_professor,)
+        "DELETE FROM professores WHERE id = ?", (id_professor,)
     )
 
     conexao.commit()

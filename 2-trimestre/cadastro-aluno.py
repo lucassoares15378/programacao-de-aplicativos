@@ -1,77 +1,101 @@
 import sqlite3
 
 def conectar():
-    conexao = sqlite3.connect('escola.demonstracao.db')
-    cursor = conexao.cursor()
+    try:
+        conexao = sqlite3.connect('escola.demonstracao.db')
+        cursor = conexao.cursor()
 
-    cursor.execute('PRAGMA foreign_keys = ON;')
+        cursor.execute('PRAGMA foreign_keys = ON;')
     
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS professores (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL
-    )
-    ''')
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS professores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL
+        )
+        ''')
     
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS alunos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT NOT NULL,
-        telefone TEXT,
-        turma TEXT,
-        idade INTEGER,
-        cpf TEXT UNIQUE NOT NULL,
-        professor_id INTEGER,
-        FOREIGN KEY (professor_id) REFERENCES professores(id) 
-    )
-    ''')
-    return conexao, cursor
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS alunos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            telefone TEXT,
+            turma TEXT,
+            idade INTEGER,
+            cpf TEXT UNIQUE NOT NULL,
+            professor_id INTEGER,
+            endereco TEXT,
+            cidade TEXT,
+            estado TEXT,
+            FOREIGN KEY (professor_id) REFERENCES professores(id) 
+        )
+        ''')
+        return conexao, cursor
+    except sqlite3.OperationalError as e:
+        print("ERROR: erro operacional com a tabela... {e}")
+
 
 def cadastrar_aluno(cursor, conexao):
-    print("--- CADASTRAR ALUNO ---")
+    try:
+        print("--- CADASTRAR ALUNO ---")
 
-    id_prof = int(input("Qual o ID do seu professor: "))
+        id_prof = int(input("Qual o ID do seu professor: "))
+    except ValueError:
+        print("O ID precisa ser um número interiro.")
+    try:
+            cursor.execute(f"SELECT id FROM professores WHERE id = {id_prof}")
+            if not cursor.fetchone():
+                print("ERRO: ID do professor não existe!")
+                return
+
+        cpf = input("CPF: ")
     
-    cursor.execute(f"SELECT id FROM professores WHERE id = {id_prof}")
-    if not cursor.fetchone():
-        print("ERRO: ID do professor não existe!")
-        return
+        cursor.execute(f"SELECT id FROM alunos WHERE cpf = '{cpf}'")
+        if cursor.fetchone():
+            print("Erro: Este CPF já está cadastrado!")
+            return
 
-    cpf = input("CPF: ")
+        nome = input("Nome: ")
+        telefone = input("Telefone: ")
+        turma = input("Turma: ")
+
+        try:
+            idade = int(input("Idade: "))
+        except ValueError:
+            print("A idade precisa ser um número inteiro")
+            return
+        
+        endereco = input("Endereço: ")
+        cidade = input("Cidade: ")
+        estado = input("Estado: ")
     
-    cursor.execute(f"SELECT id FROM alunos WHERE cpf = '{cpf}'")
-    if cursor.fetchone():
-        print("Erro: Este CPF já está cadastrado!")
-        return
+        comando = f'''
+        INSERT INTO alunos (nome, telefone, turma, idade, cpf, professor_id, endereco, cidade, estado) 
+        VALUES ('{nome}', '{telefone}', '{turma}', {idade}, '{cpf}', '{id_prof}', '{endereco}', '{cidade}', '{estado}')
+        '''
+        cursor.execute(comando)
+        conexao.commit()
+        print("Aluno cadastrado com sucesso!")
 
-    nome = input("Nome: ")
-    telefone = input("Telefone: ")
-    turma = input("Turma: ")
-    idade = int(input("Idade: "))
-    endereço = input("Endereço: ")
-    cidade = input("Cidade: ")
-    estado = input("Estado: ")
-
-    comando = f'''
-    INSERT INTO alunos (nome, telefone, turma, idade, cpf, professor_id) 
-    VALUES ('{nome}', '{telefone}', '{turma}', {idade}, '{cpf}', '{id_prof}', '{endereço}', '{cidade}', '{estado}')
-    '''
-    cursor.execute(comando)
-    conexao.commit()
-    print("Aluno cadastrado com sucesso!")
+    except sqlite3.IntegrityError as e:
+        print(f"Erro de integridade (Ex: CPF duplicado ou restrição de chave): {e}")
+    except sqlite3.OperationalError as e:
+        print(f"Erro de sintaxe SQL ou tabela ausente: {e}")
+    except Exception as e:
+        print(f"Erro desconhecido ao cadastrar aluno: {e}")
 
 def listar_alunos(cursor):
-    print("--- LISTA DE ALUNOS ---")
-    cursor.execute("SELECT * FROM alunos")
-    todos_alunos = cursor.fetchall()
+    try:
+        print("--- LISTA DE ALUNOS ---")
+        cursor.execute("SELECT * FROM alunos")
+        todos_alunos = cursor.fetchall()
     
-    if not todos_alunos:
-        print("Nenhum aluno cadastrado!")
-        return False
+        if not todos_alunos:
+            print("Nenhum aluno cadastrado!")
+            return False
     
-    for aluno in todos_alunos:
-        print(f"ID: {aluno[0]} | Nome: {aluno[1]} | Telefone: {aluno[2]} | Turma: {aluno[3]} | Idade: {aluno[4]} | CPF: {aluno[5]} | ID Prof: {aluno[6]} | Endereço: {aluno[7]} | Cidade: {aluno[8]}, | Estado: {aluno[9]}")
-    return True
+        for aluno in todos_alunos:
+            print(f"ID: {aluno[0]} | Nome: {aluno[1]} | Telefone: {aluno[2]} | Turma: {aluno[3]} | Idade: {aluno[4]} | CPF: {aluno[5]} | ID Prof: {aluno[6]} | Endereço: {aluno[7]} | Cidade: {aluno[8]}, | Estado: {aluno[9]}")
+        return True
 
 def editar_aluno(cursor, conexao):
     print("--- EDITAR ALUNO ---")
@@ -144,12 +168,12 @@ def excluir_aluno(cursor, conexao):
 conexao, cursor = conectar()
 
 while True:
-    print("===== MENU ESCOLA =====")
-    print("[1] Cadastrar Aluno")
-    print("[2] Listar Alunos")
-    print("[3] Atualizar Aluno")
-    print("[4] Excluir Aluno")
-    print("[0] Sair")
+    print("---MENU ESCOLA---")
+    print("1. Cadastrar Aluno")
+    print("2. Listar Alunos")
+    print("3. Atualizar Aluno")
+    print("4. Excluir Aluno")
+    print("0. Sair")
     
     opcao = input("Escolha uma opção: ")
     
