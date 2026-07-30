@@ -22,4 +22,4 @@ def cadastrar_serie_seguro(nome, id_escola):
         if conexao:
             conexao.close()
 
-# Se a conexão falhar, ela não existe e o finally tenta fechar algo que não foi criado.
+# Se a conexão nao der certo, ela não existe e o finally tenta fechar algo que não foi criado.

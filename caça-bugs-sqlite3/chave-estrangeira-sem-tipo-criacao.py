@@ -16,5 +16,5 @@ def criar_tabela_turma():
     conexao.commit()
     conexao.close()
 
-#  A coluna id_serie não tinha um tipo definido para guardar o ID da série.
+#  A coluna id_serie não  guarda o ID da série.
 

@@ -28,4 +28,4 @@ def cadastrar_escola_manual():
         if conexao:
             conexao.close()
 
-# não existe tratamento de erro para ID duplicado. Se inserir o mesmo ID novamente, gera sqlite3.IntegrityError e o programa fecha.
+# não da pra corrigir erro de ID duplicado. Se colocar o mesmo ID novamente gera sqlite3.IntegrityError e o programa fecha.

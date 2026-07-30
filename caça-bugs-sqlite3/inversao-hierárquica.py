@@ -2,7 +2,7 @@ import sqlite3
 def criar_tabelas():
     conexao = sqlite3.connect('sistema_escola.db')
     cursor = conexao.cursor()
-#inverte o cursor execute de cima pelo debaixo, isso vai criar a tabela primeiro e nao vai puxar a tabela inesxistente
+#inverte o cursor execute de cima pelo debaixo, vai criar a tabela primeiro se nao vai dar tabela inesxistente
                                             
     cursor.execute('''                        
         CREATE TABLE IF NOT EXISTS escolas (
