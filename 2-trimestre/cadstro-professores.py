@@ -76,7 +76,7 @@ def atualizar():
         cursor.execute(f'''SELECT * FROM professores WHERE id = {id_professor}''')
         professores = cursor.fetchone()
 
-        if profesores is None:
+        if professores is None:
             print("Não encontrado!")
         else:
             novo_nome = input("qual o novo nome: ")
