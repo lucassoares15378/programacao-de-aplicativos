@@ -16,6 +16,8 @@ def listar_operadores():
             for linha in linhas:
                 print(f"ID: {linha[0]} | Razão Social: {linha[1]} | Inscrição Estadual: {linha[2]}")
         print("\n")
-
+        return True
     except sqlite3.Error as erro:
         print(f"Erro ao listar operadores: {erro}")
+
+assert listar_operadores()
