@@ -53,9 +53,7 @@ def menu_alunos():
 def menu_principal():
     opcao = 0
     while opcao != 4:
-        print("\n=============================")
         print("  SISTEMA DE GESTAO ESCOLAR  ")
-        print("=============================")
         print("1. Gerenciar Escolas")
         print("2. Gerenciar Turmas")
         print("3. Gerenciar Alunos")

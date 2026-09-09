@@ -26,14 +26,14 @@ def cadastrar():
 def listar():
     try:
         conexao, cursor = banco.conectar()
-        cursor.execute("SELECT * FROM alunos")
+        cursor.execute("SELECT * FROM alunos ORDER BY nome ASC;")
         alunos = cursor.fetchall()
         conexao.close()
         
         if len(alunos) == 0:
             print("Nenhum aluno cadastrado.")
         else:
-            print("\n--- LISTA DE ALUNOS ---")
+            print("--- LISTA DE ALUNOS ---")
             for aluno in alunos:
                 print(f"ID: {aluno[0]} | Nome: {aluno[1]} | Idade: {aluno[2]} | ID Turma: {aluno[3]}")
     except sqlite3.Error as e:
